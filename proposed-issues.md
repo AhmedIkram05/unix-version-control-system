@@ -39,7 +39,7 @@ The log exists but requires users to manually open it. A dedicated viewer keeps 
 ## Issue: Respect the user's preferred editor
 
 **Description**
-When checking out a file, open it with the editor defined in `$EDITOR` when available, falling back to `nano` if it is unset. The update should preserve the current behavior when `$EDITOR` is not defined.
+When checking out a file, open it with the editor defined in `$EDITOR` when available, falling back to the current `nano` behavior if it is unset.
 
 **Why this matters**
 Many users prefer editors like `vim` or `code --wait`. Respecting `$EDITOR` improves usability without adding dependencies.
