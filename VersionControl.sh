@@ -263,7 +263,7 @@ viewFile() {
 statusSummary() {
 	# Check if user has selected a repository
 	if [ -z "$currentRepo" ]; then
-		echo "No repository selected. Please create or select a repository first"
+		echo "No repository selected. Please create or select a repository first."
 	else
 		echo "═══════════════════════════════════════"
 		echo "Repository Status Summary"
