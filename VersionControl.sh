@@ -269,13 +269,14 @@ statusSummary() {
 		echo "Repository Status Summary"
 		echo "═══════════════════════════════════════"
 		echo "Repository: $currentRepo"
+		backupPath="$currentRepo/${backupDir:-backups}"
 
 		latestBackup=""
 		while IFS= read -r -d '' backupFile; do
 			if [ -z "$latestBackup" ] || [ "$backupFile" -nt "$latestBackup" ]; then
 				latestBackup="$backupFile"
 			fi
-		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f -name "*.backup_*" -print0 2>/dev/null)
+		done < <(find "$backupPath" -maxdepth 1 -type f -name "*.backup_*" -print0 2>/dev/null)
 		if [ -n "$latestBackup" ]; then
 			backupBase="$(basename "$latestBackup")"
 			latestTimestamp="${backupBase##*.backup_}"
@@ -320,7 +321,7 @@ statusSummary() {
 			if [ ! -f "$currentRepo/$fileName" ]; then
 				missingFiles+=("$fileName")
 			fi
-		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
+		done < <(find "$backupPath" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
 
 		if [ ${#missingFiles[@]} -gt 0 ]; then
 			printf ' - %s\n' "${missingFiles[@]}" | sort -u
