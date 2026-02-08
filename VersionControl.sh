@@ -270,7 +270,12 @@ statusSummary() {
 		echo "═══════════════════════════════════════"
 		echo "Repository: $currentRepo"
 
-		latestBackup=$(ls -t "$currentRepo/$backupDir"/*.backup_* 2>/dev/null | head -n 1)
+		latestBackup=""
+		while IFS= read -r -d '' backupFile; do
+			if [ -z "$latestBackup" ] || [ "$backupFile" -nt "$latestBackup" ]; then
+				latestBackup="$backupFile"
+			fi
+		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f -name "*.backup_*" -print0 2>/dev/null)
 		if [ -n "$latestBackup" ]; then
 			latestTimestamp="${latestBackup##*.backup_}"
 			echo "Latest check-in: $latestTimestamp"
@@ -280,10 +285,10 @@ statusSummary() {
 
 		echo
 		echo "Checked out files:"
-		nullglobState=$(shopt -p nullglob)
-		shopt -s nullglob
-		checkedOutFiles=( "$currentRepo"/*.checkedout )
-		eval "$nullglobState"
+		checkedOutFiles=()
+		while IFS= read -r -d '' checkedOutFile; do
+			checkedOutFiles+=("$checkedOutFile")
+		done < <(find "$currentRepo" -maxdepth 1 -type f -name "*.checkedout" -print0 2>/dev/null)
 		if [ ${#checkedOutFiles[@]} -gt 0 ]; then
 			for checkedOutFile in "${checkedOutFiles[@]}"; do
 				echo " - $(basename "$checkedOutFile" .checkedout)"
@@ -311,9 +316,12 @@ statusSummary() {
 		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
 
 		if [ ${#missingFiles[@]} -gt 0 ]; then
-			printf '%s\n' "${missingFiles[@]}" | sort -u | while read -r missingFile; do
-				echo " - $missingFile"
-			done
+			sortedMissingFiles=$(printf '%s\n' "${missingFiles[@]}" | sort -u)
+			while IFS= read -r missingFile; do
+				if [ -n "$missingFile" ]; then
+					echo " - $missingFile"
+				fi
+			done <<< "$sortedMissingFiles"
 		else
 			echo " (none)"
 		fi
