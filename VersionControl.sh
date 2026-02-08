@@ -286,7 +286,7 @@ statusSummary() {
 		eval "$nullglobState"
 		if [ ${#checkedOutFiles[@]} -gt 0 ]; then
 			for checkedOutFile in "${checkedOutFiles[@]}"; do
-				echo " - $(basename "$checkedOutFile")"
+				echo " - $(basename "$checkedOutFile" .checkedout)"
 			done
 		else
 			echo " (none)"
