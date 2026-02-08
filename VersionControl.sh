@@ -321,10 +321,9 @@ statusSummary() {
 		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
 
 		if [ ${#missingFiles[@]} -gt 0 ]; then
-			sortedMissingFiles=$(printf '%s\n' "${missingFiles[@]}" | sort -u)
 			while IFS= read -r missingFile; do
 				echo " - $missingFile"
-			done <<< "$sortedMissingFiles"
+			done < <(printf '%s\n' "${missingFiles[@]}" | sort -u)
 		else
 			echo " (none)"
 		fi
