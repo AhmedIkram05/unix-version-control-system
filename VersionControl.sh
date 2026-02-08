@@ -311,8 +311,6 @@ statusSummary() {
 				fileName="${backupBase%%.backup_*}"
 			elif [[ "$backupBase" == *.deleted_* ]]; then
 				fileName="${backupBase%%.deleted_*}"
-			else
-				continue
 			fi
 
 			if [ ! -f "$currentRepo/$fileName" ]; then
