@@ -259,6 +259,66 @@ viewFile() {
 	fi
 }
 
+# Function to display repository status summary
+statusSummary() {
+	# Check if user has selected a repository
+	if [ -z "$currentRepo" ]; then
+		echo "No repository selected. Please create or select a repository first"
+	else
+		echo "═══════════════════════════════════════"
+		echo "Repository Status Summary"
+		echo "═══════════════════════════════════════"
+		echo "Repository: $currentRepo"
+
+		latestBackup=$(ls -t "$currentRepo/$backupDir"/*.backup_* 2>/dev/null | head -n 1)
+		if [ -n "$latestBackup" ]; then
+			latestTimestamp="${latestBackup##*.backup_}"
+			echo "Latest check-in: $latestTimestamp"
+		else
+			echo "Latest check-in: None"
+		fi
+
+		echo
+		echo "Checked out files:"
+		checkedOutFiles=( "$currentRepo"/*.checkedout )
+		if [ -e "${checkedOutFiles[0]}" ]; then
+			for checkedOutFile in "${checkedOutFiles[@]}"; do
+				echo " - $(basename "$checkedOutFile")"
+			done
+		else
+			echo " (none)"
+		fi
+
+		echo
+		echo "Deleted files with backups:"
+		missingFiles=()
+		while IFS= read -r -d '' backupFile; do
+			backupBase="$(basename "$backupFile")"
+			if [[ "$backupBase" == *.backup_* ]]; then
+				fileName="${backupBase%%.backup_*}"
+			elif [[ "$backupBase" == *.deleted_* ]]; then
+				fileName="${backupBase%%.deleted_*}"
+			else
+				continue
+			fi
+
+			if [ ! -f "$currentRepo/$fileName" ]; then
+				missingFiles+=("$fileName")
+			fi
+		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
+
+		if [ ${#missingFiles[@]} -gt 0 ]; then
+			printf '%s\n' "${missingFiles[@]}" | sort -u | while read -r missingFile; do
+				echo " - $missingFile"
+			done
+		else
+			echo " (none)"
+		fi
+
+		read -p "Press enter to return to menu"
+	fi
+}
+
 # Function to display the main menu
 mainMenu() {
     while true; do
@@ -349,15 +409,17 @@ viewOptionsMenu() {
         echo "═══════════════════════════════════════"
         echo "1. List Contents       - Show repository files"
         echo "2. View File           - Display file contents"
-        echo "3. Back to Main Menu"
+        echo "3. Status Summary      - Show repository status"
+        echo "4. Back to Main Menu"
         echo "═══════════════════════════════════════"
         read -p "Enter choice: " choice
 
         case $choice in
             1) listRepositoryContents ;;
             2) viewFile ;;
-            3) break ;;
-            *) echo "Invalid choice (1-3)"
+            3) statusSummary ;;
+            4) break ;;
+            *) echo "Invalid choice (1-4)"
                sleep 2 ;;
         esac
     done
