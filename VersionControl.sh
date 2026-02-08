@@ -278,7 +278,11 @@ statusSummary() {
 		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f -name "*.backup_*" -print0 2>/dev/null)
 		if [ -n "$latestBackup" ]; then
 			latestTimestamp="${latestBackup##*.backup_}"
-			echo "Latest check-in: $latestTimestamp"
+			if [ -n "$latestTimestamp" ]; then
+				echo "Latest check-in: $latestTimestamp"
+			else
+				echo "Latest check-in: Unknown"
+			fi
 		else
 			echo "Latest check-in: None"
 		fi
