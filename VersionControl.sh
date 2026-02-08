@@ -243,7 +243,7 @@ deleteFile() {
 viewFile() {
 	# Check if user has selected a repository
 	if [ -z "$currentRepo" ]; then
-		echo "No repository selected. Please create or select a repository first"
+		echo "No repository selected. Please create or select a repository first."
 	else
 		# Ask the user for the name of the file to view
 		echo "Enter the name of the file to view"
@@ -280,8 +280,11 @@ statusSummary() {
 
 		echo
 		echo "Checked out files:"
+		nullglobState=$(shopt -p nullglob)
+		shopt -s nullglob
 		checkedOutFiles=( "$currentRepo"/*.checkedout )
-		if [ -e "${checkedOutFiles[0]}" ]; then
+		eval "$nullglobState"
+		if [ ${#checkedOutFiles[@]} -gt 0 ]; then
 			for checkedOutFile in "${checkedOutFiles[@]}"; do
 				echo " - $(basename "$checkedOutFile")"
 			done
