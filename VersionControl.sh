@@ -277,7 +277,8 @@ statusSummary() {
 			fi
 		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f -name "*.backup_*" -print0 2>/dev/null)
 		if [ -n "$latestBackup" ]; then
-			latestTimestamp="${latestBackup##*.backup_}"
+			backupBase="$(basename "$latestBackup")"
+			latestTimestamp="${backupBase##*.backup_}"
 			if [ -n "$latestTimestamp" ]; then
 				echo "Latest check-in: $latestTimestamp"
 			else
@@ -322,9 +323,7 @@ statusSummary() {
 		if [ ${#missingFiles[@]} -gt 0 ]; then
 			sortedMissingFiles=$(printf '%s\n' "${missingFiles[@]}" | sort -u)
 			while IFS= read -r missingFile; do
-				if [ -n "$missingFile" ]; then
-					echo " - $missingFile"
-				fi
+				echo " - $missingFile"
 			done <<< "$sortedMissingFiles"
 		else
 			echo " (none)"
