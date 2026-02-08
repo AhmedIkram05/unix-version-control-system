@@ -307,10 +307,14 @@ statusSummary() {
 		missingFiles=()
 		while IFS= read -r -d '' backupFile; do
 			backupBase="$(basename "$backupFile")"
+			fileName=""
 			if [[ "$backupBase" == *.backup_* ]]; then
 				fileName="${backupBase%%.backup_*}"
 			elif [[ "$backupBase" == *.deleted_* ]]; then
 				fileName="${backupBase%%.deleted_*}"
+			fi
+			if [ -z "$fileName" ]; then
+				continue
 			fi
 
 			if [ ! -f "$currentRepo/$fileName" ]; then
@@ -319,9 +323,7 @@ statusSummary() {
 		done < <(find "$currentRepo/$backupDir" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
 
 		if [ ${#missingFiles[@]} -gt 0 ]; then
-			while IFS= read -r missingFile; do
-				echo " - $missingFile"
-			done < <(printf '%s\n' "${missingFiles[@]}" | sort -u)
+			printf ' - %s\n' "${missingFiles[@]}" | sort -u
 		else
 			echo " (none)"
 		fi
