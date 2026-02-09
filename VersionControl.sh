@@ -172,23 +172,21 @@ restore() {
 		# Check if there are previous versions of the file
 		if [ -f "$currentRepo/$fileName" ]; then
 			# Find the most recent backup file for the given file
-			latestBackup="$(ls -t "$currentRepo/$backupDir/$fileName.backup_"* | head -n 2 | tail -n 1)"
+			latestBackup="$(ls -t "$currentRepo/$backupDir/$fileName.backup_"* 2>/dev/null | head -n 2 | tail -n 1)"
 
 			# Check if a backup file was found and restore it
 			if [ -n "$latestBackup" ]; then
 				# Restore the file from the latest backup
-                                mv "$latestBackup" "$currentRepo"
+                                cp "$latestBackup" "$currentRepo/$fileName"
                                 echo "File '$fileName' rolled back to the previous version and backed up."
 			else
 				echo "No backup found for '$fileName'."
 			fi		
 		else
 			# Check if a deleted file exists in backups and restore it
-			latestDeletedBackup=$(ls -t "$currentRepo/$backupDir/$fileName.deleted_"* | head -n 1)
-			echo $fileName
-			if [ -n "$latestDeletedBackup)" ]; then
-				echo $latestDeletesBackup
-				mv "$latestDeletedBackup" "$currentRepo"
+			latestDeletedBackup=$(ls -t "$currentRepo/$backupDir/$fileName.deleted_"* 2>/dev/null | head -n 1)
+			if [ -n "$latestDeletedBackup" ]; then
+				cp "$latestDeletedBackup" "$currentRepo/$fileName"
 				echo "File '$fileName' rolled back to a previously deleted version."
 			else 
 				echo "File '$fileName' not found in the repository or its backups"
@@ -210,12 +208,12 @@ archiveRepository() {
 
 		# Check if the archive already exists
 		if [ -f "$archiveName" ]; then
-			echo "Archive file 'archiveName' already exists but it will now be overwritten"
+			echo "Archive file '$archiveName' already exists but it will now be overwritten"
 		fi
 
 		# Create the archive of the current repository
 		zip -r "$archiveName" "$currentRepo"
-		echo "Repository 'currentRepo' archived to '$archiveName'."
+		echo "Repository '$currentRepo' archived to '$archiveName'."
 	fi
 }
 
