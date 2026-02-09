@@ -243,7 +243,7 @@ deleteFile() {
 viewFile() {
 	# Check if user has selected a repository
 	if [ -z "$currentRepo" ]; then
-		echo "No repository selected. Please create or select a repository first"
+		echo "No repository selected. Please create or select a repository first."
 	else
 		# Ask the user for the name of the file to view
 		echo "Enter the name of the file to view"
@@ -256,6 +256,80 @@ viewFile() {
 		else
 			echo "File '$fileName' not found in the repository"
 		fi
+	fi
+}
+
+# Function to display repository status summary
+statusSummary() {
+	# Check if user has selected a repository
+	if [ -z "$currentRepo" ]; then
+		echo "No repository selected. Please create or select a repository first."
+	else
+		echo "═══════════════════════════════════════"
+		echo "Repository Status Summary"
+		echo "═══════════════════════════════════════"
+		echo "Repository: $currentRepo"
+		backupPath="$currentRepo/${backupDir:-backups}"
+
+		latestBackup=""
+		while IFS= read -r -d '' backupFile; do
+			if [ -z "$latestBackup" ] || [ "$backupFile" -nt "$latestBackup" ]; then
+				latestBackup="$backupFile"
+			fi
+		done < <(find "$backupPath" -maxdepth 1 -type f -name "*.backup_*" -print0 2>/dev/null)
+		if [ -n "$latestBackup" ]; then
+			backupBase="$(basename "$latestBackup")"
+			latestTimestamp="${backupBase##*.backup_}"
+			if [ -n "$latestTimestamp" ]; then
+				echo "Latest check-in: $latestTimestamp"
+			else
+				echo "Latest check-in: Unknown"
+			fi
+		else
+			echo "Latest check-in: None"
+		fi
+
+		echo
+		echo "Checked out files:"
+		checkedOutFiles=()
+		while IFS= read -r -d '' checkedOutFile; do
+			checkedOutFiles+=("$checkedOutFile")
+		done < <(find "$currentRepo" -maxdepth 1 -type f -name "*.checkedout" -print0 2>/dev/null)
+		if [ ${#checkedOutFiles[@]} -gt 0 ]; then
+			for checkedOutFile in "${checkedOutFiles[@]}"; do
+				echo " - $(basename "$checkedOutFile" .checkedout)"
+			done
+		else
+			echo " (none)"
+		fi
+
+		echo
+		echo "Deleted files with backups:"
+		missingFiles=()
+		while IFS= read -r -d '' backupFile; do
+			backupBase="$(basename "$backupFile")"
+			fileName=""
+			if [[ "$backupBase" == *.backup_* ]]; then
+				fileName="${backupBase%%.backup_*}"
+			elif [[ "$backupBase" == *.deleted_* ]]; then
+				fileName="${backupBase%%.deleted_*}"
+			fi
+			if [ -z "$fileName" ]; then
+				continue
+			fi
+
+			if [ ! -f "$currentRepo/$fileName" ]; then
+				missingFiles+=("$fileName")
+			fi
+		done < <(find "$backupPath" -maxdepth 1 -type f \( -name "*.backup_*" -o -name "*.deleted_*" \) -print0 2>/dev/null)
+
+		if [ ${#missingFiles[@]} -gt 0 ]; then
+			printf ' - %s\n' "${missingFiles[@]}" | sort -u
+		else
+			echo " (none)"
+		fi
+
+		read -p "Press enter to return to menu"
 	fi
 }
 
@@ -349,15 +423,17 @@ viewOptionsMenu() {
         echo "═══════════════════════════════════════"
         echo "1. List Contents       - Show repository files"
         echo "2. View File           - Display file contents"
-        echo "3. Back to Main Menu"
+        echo "3. Status Summary      - Show repository status"
+        echo "4. Back to Main Menu"
         echo "═══════════════════════════════════════"
         read -p "Enter choice: " choice
 
         case $choice in
             1) listRepositoryContents ;;
             2) viewFile ;;
-            3) break ;;
-            *) echo "Invalid choice (1-3)"
+            3) statusSummary ;;
+            4) break ;;
+            *) echo "Invalid choice (1-4)"
                sleep 2 ;;
         esac
     done
