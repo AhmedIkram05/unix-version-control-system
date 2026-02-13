@@ -85,9 +85,10 @@ A lightweight, Git-like version control system built entirely in Bash, designed 
    - Add an optional comment describing your modifications
    - A timestamped backup is automatically created
 
-5. **View change history**
-   - Check the `log.txt` file in your repository folder
-   - Review all check-ins, check-outs, and changes with diffs
+5. **View change history** (Menu: 3 → 4)
+   - Open the repository log from the built-in View Options menu
+   - Filter by all entries, a specific file, check-ins, or check-outs
+   - Display results using `less` or `cat`
 
 6. **Restore previous versions** (Menu: 2 → 4)
    - Enter the filename to restore
