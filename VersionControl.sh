@@ -258,15 +258,18 @@ renameOrMoveFile() {
 			destinationDir="$(dirname "$currentRepo/$destinationFile")"
 			mkdir -p "$destinationDir"
 			if mv "$currentRepo/$sourceFile" "$currentRepo/$destinationFile"; then
-				mkdir -p "$(dirname "$currentRepo/$backupDir/$destinationFile")"
-				for backupFile in "$currentRepo/$backupDir/$sourceFile.backup_"* "$currentRepo/$backupDir/$sourceFile.deleted_"*; do
-					if [ -e "$backupFile" ]; then
-						suffix="${backupFile#"$currentRepo/$backupDir/$sourceFile"}"
-						if ! mv "$backupFile" "$currentRepo/$backupDir/$destinationFile$suffix"; then
-							echo "Warning: could not rename backup '$backupFile'."
+				if mkdir -p "$(dirname "$currentRepo/$backupDir/$destinationFile")"; then
+					for backupFile in "$currentRepo/$backupDir/$sourceFile.backup_"* "$currentRepo/$backupDir/$sourceFile.deleted_"*; do
+						if [ -e "$backupFile" ]; then
+							suffix="${backupFile#"$currentRepo/$backupDir/$sourceFile"}"
+							if ! mv "$backupFile" "$currentRepo/$backupDir/$destinationFile$suffix"; then
+								echo "Warning: could not rename backup '$backupFile'."
+							fi
 						fi
-					fi
-				done
+					done
+				else
+					echo "Warning: could not prepare backup directory for '$destinationFile'."
+				fi
 				echo "User '$USER' renamed/moved file '$sourceFile' to '$destinationFile' on $(date)" >> "$currentRepo/$logFile"
 				echo "File '$sourceFile' renamed/moved to '$destinationFile'."
 			else
