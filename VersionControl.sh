@@ -255,15 +255,23 @@ renameOrMoveFile() {
 		elif [ -e "$currentRepo/$destinationFile" ] || [ -e "$currentRepo/$destinationFile.checkedout" ]; then
 			echo "Destination '$destinationFile' already exists in the repository."
 		else
-			mv "$currentRepo/$sourceFile" "$currentRepo/$destinationFile"
-			for backupFile in "$currentRepo/$backupDir/$sourceFile.backup_"* "$currentRepo/$backupDir/$sourceFile.deleted_"*; do
-				if [ -e "$backupFile" ]; then
-					suffix="${backupFile#"$currentRepo/$backupDir/$sourceFile"}"
-					mv "$backupFile" "$currentRepo/$backupDir/$destinationFile$suffix"
-				fi
-			done
-			echo "User '$USER' renamed/moved file '$sourceFile' to '$destinationFile' on $(date)" >> "$currentRepo/$logFile"
-			echo "File '$sourceFile' renamed/moved to '$destinationFile'."
+			destinationDir="$(dirname "$currentRepo/$destinationFile")"
+			mkdir -p "$destinationDir"
+			if mv "$currentRepo/$sourceFile" "$currentRepo/$destinationFile"; then
+				mkdir -p "$(dirname "$currentRepo/$backupDir/$destinationFile")"
+				for backupFile in "$currentRepo/$backupDir/$sourceFile.backup_"* "$currentRepo/$backupDir/$sourceFile.deleted_"*; do
+					if [ -e "$backupFile" ]; then
+						suffix="${backupFile#"$currentRepo/$backupDir/$sourceFile"}"
+						if ! mv "$backupFile" "$currentRepo/$backupDir/$destinationFile$suffix"; then
+							echo "Warning: could not rename backup '$backupFile'."
+						fi
+					fi
+				done
+				echo "User '$USER' renamed/moved file '$sourceFile' to '$destinationFile' on $(date)" >> "$currentRepo/$logFile"
+				echo "File '$sourceFile' renamed/moved to '$destinationFile'."
+			else
+				echo "Unable to rename/move '$sourceFile' to '$destinationFile'."
+			fi
 		fi
 	fi
 }
