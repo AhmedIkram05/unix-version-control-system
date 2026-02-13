@@ -257,6 +257,55 @@ viewFile() {
 	fi
 }
 
+# Function to view log with basic filters
+viewLog() {
+	if [ -z "$currentRepo" ]; then
+		echo "No repository selected. Please create or select a repository first."
+		return
+	fi
+
+	if [ ! -f "$currentRepo/$logFile" ]; then
+		echo "No log file found for repository '$currentRepo'."
+		return
+	fi
+
+	echo "Select log view filter:"
+	echo "1. Show all entries"
+	echo "2. Show entries for a specific file"
+	echo "3. Show check-ins only"
+	echo "4. Show check-outs only"
+	read -p "Enter choice: " filterChoice
+
+	case $filterChoice in
+		1) filteredLog="$(cat "$currentRepo/$logFile")" ;;
+		2) echo "Enter the file name to filter by:"
+		   read fileName
+		   filteredLog="$(grep -F "file '$fileName'" "$currentRepo/$logFile")" ;;
+		3) filteredLog="$(grep "checked in file" "$currentRepo/$logFile")" ;;
+		4) filteredLog="$(grep "checked out file" "$currentRepo/$logFile")" ;;
+		*) echo "Invalid choice (1-4)"
+		   sleep 2
+		   return ;;
+	esac
+
+	if [ -z "$filteredLog" ]; then
+		echo "No matching log entries found."
+		return
+	fi
+
+	echo "Select viewer:"
+	echo "1. less"
+	echo "2. cat"
+	read -p "Enter choice: " viewerChoice
+
+	case $viewerChoice in
+		1) printf '%s\n' "$filteredLog" | less ;;
+		2) printf '%s\n' "$filteredLog" | cat ;;
+		*) echo "Invalid choice. Showing output with cat."
+		   printf '%s\n' "$filteredLog" | cat ;;
+	esac
+}
+
 # Function to display repository status summary
 statusSummary() {
 	# Check if user has selected a repository
@@ -422,7 +471,8 @@ viewOptionsMenu() {
         echo "1. List Contents       - Show repository files"
         echo "2. View File           - Display file contents"
         echo "3. Status Summary      - Show repository status"
-        echo "4. Back to Main Menu"
+        echo "4. View Log            - Display repository log"
+        echo "5. Back to Main Menu"
         echo "═══════════════════════════════════════"
         read -p "Enter choice: " choice
 
@@ -430,8 +480,9 @@ viewOptionsMenu() {
             1) listRepositoryContents ;;
             2) viewFile ;;
             3) statusSummary ;;
-            4) break ;;
-            *) echo "Invalid choice (1-4)"
+            4) viewLog ;;
+            5) break ;;
+            *) echo "Invalid choice (1-5)"
                sleep 2 ;;
         esac
     done
