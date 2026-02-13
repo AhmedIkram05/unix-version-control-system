@@ -278,9 +278,12 @@ viewLog() {
 
 	case $filterChoice in
 		1) filteredLog="$(cat "$currentRepo/$logFile")" ;;
-		2) echo "Enter the file name to filter by:"
-		   read fileName
-		   filteredLog="$(grep -F "file '$fileName'" "$currentRepo/$logFile")" ;;
+		2) read -p "Enter the file name to filter by: " fileName
+		   if [ -z "$fileName" ]; then
+		   	echo "File name cannot be empty."
+		   	return
+		   fi
+		   filteredLog="$(grep -F "$fileName" "$currentRepo/$logFile")" ;;
 		3) filteredLog="$(grep "checked in file" "$currentRepo/$logFile")" ;;
 		4) filteredLog="$(grep "checked out file" "$currentRepo/$logFile")" ;;
 		*) echo "Invalid choice (1-4)"
@@ -300,9 +303,9 @@ viewLog() {
 
 	case $viewerChoice in
 		1) printf '%s\n' "$filteredLog" | less ;;
-		2) printf '%s\n' "$filteredLog" | cat ;;
+		2) printf '%s\n' "$filteredLog" ;;
 		*) echo "Invalid choice. Showing output with cat."
-		   printf '%s\n' "$filteredLog" | cat ;;
+		   printf '%s\n' "$filteredLog" ;;
 	esac
 }
 
