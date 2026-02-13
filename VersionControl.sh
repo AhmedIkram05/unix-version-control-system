@@ -238,6 +238,47 @@ deleteFile() {
 	fi
 }
 
+renameOrMoveFile() {
+	# Check user has selected a repository
+	if [ -z "$currentRepo" ]; then
+		echo "No repository selected. Please create or select a repository first."
+	else
+		echo "Enter the name of the file to rename/move"
+		read sourceFile
+		echo "Enter the new file name/path"
+		read destinationFile
+
+		if [ ! -f "$currentRepo/$sourceFile" ]; then
+			echo "File '$sourceFile' not found in the repository."
+		elif [ -f "$currentRepo/$sourceFile.checkedout" ]; then
+			echo "File '$sourceFile' is currently checked out and cannot be renamed/moved."
+		elif [ -e "$currentRepo/$destinationFile" ] || [ -e "$currentRepo/$destinationFile.checkedout" ]; then
+			echo "Destination '$destinationFile' already exists in the repository."
+		else
+			destinationDir="$(dirname "$currentRepo/$destinationFile")"
+			mkdir -p "$destinationDir"
+			if mv "$currentRepo/$sourceFile" "$currentRepo/$destinationFile"; then
+				if mkdir -p "$(dirname "$currentRepo/$backupDir/$destinationFile")"; then
+					for backupFile in "$currentRepo/$backupDir/$sourceFile.backup_"* "$currentRepo/$backupDir/$sourceFile.deleted_"*; do
+						if [ -e "$backupFile" ]; then
+							suffix="${backupFile#"$currentRepo/$backupDir/$sourceFile"}"
+							if ! mv "$backupFile" "$currentRepo/$backupDir/$destinationFile$suffix"; then
+								echo "Warning: could not rename backup '$backupFile'."
+							fi
+						fi
+					done
+				else
+					echo "Warning: could not prepare backup directory for '$destinationFile'."
+				fi
+				echo "User '$USER' renamed/moved file '$sourceFile' to '$destinationFile' on $(date)" >> "$currentRepo/$logFile"
+				echo "File '$sourceFile' renamed/moved to '$destinationFile'."
+			else
+				echo "Unable to rename/move '$sourceFile' to '$destinationFile'."
+			fi
+		fi
+	fi
+}
+
 viewFile() {
 	# Check if user has selected a repository
 	if [ -z "$currentRepo" ]; then
@@ -395,7 +436,8 @@ fileOperationsMenu() {
         echo "3. Check In File       - Save changes and unlock"
         echo "4. Restore Version     - Restore previous version"
         echo "5. Delete File         - Remove file from repository"
-        echo "6. Back to Main Menu"
+        echo "6. Rename/Move File    - Rename or move tracked file"
+        echo "7. Back to Main Menu"
         echo "═══════════════════════════════════════"
         read -p "Enter choice: " choice
 
@@ -405,8 +447,9 @@ fileOperationsMenu() {
             3) checkIn ;;
             4) restore ;;
             5) deleteFile ;;
-            6) break ;;
-            *) echo "Invalid choice (1-6)"
+            6) renameOrMoveFile ;;
+            7) break ;;
+            *) echo "Invalid choice (1-7)"
                sleep 2 ;;
         esac
     done
