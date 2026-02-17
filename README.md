@@ -21,12 +21,19 @@ A lightweight, Git-like version control system built entirely in Bash, designed 
 - **Check In**: Save changes with automatic diff generation, backup creation, and optional comments
 - **Restore Version**:  Roll back to previous file versions using timestamped backups
 - **Delete File**:  Safely remove files with automatic backup retention for recovery
+- **Rename/Move File**: Rename tracked files or move them into subdirectories while preserving associated backups
 
 ### Tracking & Logging
 - **Change Tracking**: Automatic `diff` generation between file versions
 - **Activity Log**: Comprehensive logging of all check-out, check-in, and modification events with timestamps
 - **User Attribution**: Track which user made changes and when
 - **Comment System**: Add contextual comments to check-ins for better change documentation
+- **Filtered Log Views**: View all logs, file-specific entries, check-ins only, or check-outs only with `less`/`cat` output options
+
+### View Options
+- **List Contents**: Show files in the selected repository
+- **View File**: Display tracked file contents directly from the menu
+- **Status Summary**: Show latest check-in timestamp, currently checked-out files, and deleted files with backups
 
 ### Backup System
 - **Automated Backups**:  Timestamped backups created on every check-in
@@ -103,3 +110,6 @@ A lightweight, Git-like version control system built entirely in Bash, designed 
 - `restore()` - Revert to previous file versions
 - `archiveRepository()` - Create compressed repository archives
 - `deleteFile()` - Safe file deletion with backup retention
+- `renameOrMoveFile()` - Rename or move tracked files and backup history
+- `viewLog()` - View repository logs with filters
+- `statusSummary()` - Display repository status details
