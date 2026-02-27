@@ -1,115 +1,96 @@
 # Unix Version Control System
 
-## 🚀 Overview
-A lightweight, Git-like version control system built entirely in Bash, designed to run natively on Unix/Mac terminals.  This project demonstrates core version control concepts including repository management, file tracking, check-out/check-in workflows, version restoration, and automated backup systems—all without relying on external version control tools.
+**A Git-like version control system built entirely in Bash — file tracking, diffs, versioned backups, and activity logging with zero external dependencies.**
 
-## 🧠 Tech Stack
-- **Shell Scripting**: Bash (Shell)
-- **Unix Utilities**: `diff`, `zip`, `cp`, `mv`, `ls`, `nano`, `less`
-- **File System Operations**: Directory and file management through native Unix commands
-- **Version Control Architecture**: Custom-built change tracking and backup system
+[![Shell](https://img.shields.io/badge/Shell-Bash-green?style=flat-square&logo=gnu-bash)](https://www.gnu.org/software/bash/)
+[![Platform](https://img.shields.io/badge/Platform-Unix%20%2F%20macOS%20%2F%20WSL-lightgrey?style=flat-square)](https://en.wikipedia.org/wiki/Unix)
 
-## 📊 Features
-### Repository Management
-- **Create Repository**: Initialize new version-controlled repositories with automatic backup directory setup
-- **Select Repository**: Switch between multiple repositories with content preview
-- **Archive Repository**: Create compressed `.zip` archives of entire repositories for backup or distribution
+---
 
-### File Operations
-- **Add File**: Create and track new files within the repository
-- **Check Out**:  Lock files for editing with timestamp logging and user tracking
-- **Check In**: Save changes with automatic diff generation, backup creation, and optional comments
-- **Restore Version**:  Roll back to previous file versions using timestamped backups
-- **Delete File**:  Safely remove files with automatic backup retention for recovery
-- **Rename/Move File**: Rename tracked files or move them into subdirectories while preserving associated backups
+## What It Does
 
-### Tracking & Logging
-- **Change Tracking**: Automatic `diff` generation between file versions
-- **Activity Log**: Comprehensive logging of all check-out, check-in, and modification events with timestamps
-- **User Attribution**: Track which user made changes and when
-- **Comment System**: Add contextual comments to check-ins for better change documentation
-- **Filtered Log Views**: View all logs, file-specific entries, check-ins only, or check-outs only with `less`/`cat` output options
+A fully menu-driven version control system that mirrors the core mechanics of Git — without using Git. Built as a single Bash script using only native Unix utilities (`diff`, `zip`, `cp`, `mv`, `nano`).
 
-### View Options
-- **List Contents**: Show files in the selected repository
-- **View File**: Display tracked file contents directly from the menu
-- **Status Summary**: Show latest check-in timestamp, currently checked-out files, and deleted files with backups
+It supports multiple isolated repositories, file check-in/check-out with locking, timestamped backup versioning, automatic diff generation, and a filterable activity log. All stored as plain files and directories in the local filesystem.
 
-### Backup System
-- **Automated Backups**:  Timestamped backups created on every check-in
-- **Version History**:  Multiple backup versions maintained with `YYYY-MM-DD_HH-MM-SS` naming
-- **Deleted File Recovery**: Restore accidentally deleted files from backup directory
+---
 
-## 📈 Results
-- **Zero Dependencies**: Pure Bash implementation requiring no external version control tools
-- **Real-time Diff Tracking**: Instant change visualization using Unix `diff` utility
-- **Efficient Storage**: Only modified versions are backed up, reducing storage overhead
-- **Multi-Repository Support**: Manage multiple isolated repositories from a single interface
-- **Intuitive Interface**: Clear menu-driven system with organized submenus for different operations
+## Features
 
-## 🧪 How to Run
+**Repository Management**
+- Create, select, and switch between multiple repositories
+- Archive any repository to a `.zip` for backup or distribution
 
-### Prerequisites
-- Unix-based system (macOS, Linux, WSL on Windows)
-- Bash shell (typically pre-installed)
-- Basic Unix utilities (`zip`, `diff`, `nano` or another text editor)
+**File Operations**
+- Check out files for editing (with lock + timestamp logging)
+- Check in changes with automatic diff generation and optional comment
+- Restore any previous version from timestamped backups
+- Rename/move tracked files while preserving their backup history
+- Safe delete with backup retention for recovery
 
-### Installation & Execution
+**Tracking & Logging**
+- Every check-in/check-out is logged with timestamp and user
+- View logs filtered by: all entries, specific file, check-ins only, check-outs only
+- Diff shown at check-in time so you can review changes before committing
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/AhmedIkram05/unix-version-control-system.git
-   cd unix-version-control-system
-   ```
+**Status & Viewing**
+- Status summary: last check-in time, currently locked files, deleted files with backups
+- List and view file contents from within the menu
 
-2. **Make the script executable**
-   ```bash
-   chmod +x VersionControl.sh
-   ```
+---
 
-3. **Run the version control system**
-   ```bash
-   ./VersionControl.sh
-   ```
+## How to Run
 
-### Basic Usage Workflow
+```bash
+git clone https://github.com/AhmedIkram05/unix-version-control-system.git
+cd unix-version-control-system
+chmod +x VersionControl.sh
+./VersionControl.sh
+```
 
-1. **Create a new repository** (Menu:  1 → 1)
-   - Enter a repository name when prompted
-   - A directory with backup folder will be created
+**Requirements:** Any Unix/macOS system or WSL on Windows. Bash, `diff`, `zip`, and `nano` (or substitute your preferred editor).
 
-2. **Add files to your repository** (Menu: 2 → 1)
-   - Enter the filename you want to track
+---
 
-3. **Check out a file for editing** (Menu: 2 → 2)
-   - Select the file to edit
-   - The file will open in `nano` editor
-   - Make your changes and save (Ctrl+O, then Ctrl+X)
+## Basic Workflow
 
-4. **Check in your changes** (Menu: 2 → 3)
-   - Enter the filename you edited
-   - View the automatic diff of your changes
-   - Add an optional comment describing your modifications
-   - A timestamped backup is automatically created
+```
+1. Create repository      → Menu: 1 → 1
+2. Add a file to track    → Menu: 2 → 1
+3. Check out for editing  → Menu: 2 → 2  (opens in nano, logs checkout)
+4. Check in changes       → Menu: 2 → 3  (shows diff, creates backup, logs checkin)
+5. View change history    → Menu: 3 → 4  (filter by file, type, or show all)
+6. Restore previous ver.  → Menu: 2 → 4  (restores from latest timestamped backup)
+```
 
-5. **View change history** (Menu: 3 → 4)
-   - Open the repository log from the built-in View Options menu
-   - Filter by all entries, a specific file, check-ins, or check-outs
-   - Display results using `less` or `cat`
+---
 
-6. **Restore previous versions** (Menu: 2 → 4)
-   - Enter the filename to restore
-   - The most recent backup will be restored
+## Backup System
 
-## 🛠️ Key Functions
-- `createRepository()` - Initialize new version control repositories
-- `selectRepository()` - Switch active repository context
-- `addFile()` - Add files to version tracking
-- `checkOut()` - Lock files for editing with logging
-- `checkIn()` - Save changes with diff generation and backup
-- `restore()` - Revert to previous file versions
-- `archiveRepository()` - Create compressed repository archives
-- `deleteFile()` - Safe file deletion with backup retention
-- `renameOrMoveFile()` - Rename or move tracked files and backup history
-- `viewLog()` - View repository logs with filters
-- `statusSummary()` - Display repository status details
+Every check-in creates a timestamped copy:
+
+```
+repository/
+├── backups/
+│   ├── myfile_2025-03-01_14-22-10.txt
+│   ├── myfile_2025-03-15_09-45-33.txt
+│   └── myfile_2025-04-02_17-11-05.txt
+├── myfile.txt
+└── activity.log
+```
+
+Deleted files retain their backups and can be recovered at any time.
+
+---
+
+## Key Functions
+
+| Function | Description |
+|---|---|
+| `createRepository()` | Initialise new repo with backup directory |
+| `checkOut()` | Lock file for editing, log to activity log |
+| `checkIn()` | Save changes, generate diff, create timestamped backup |
+| `restore()` | Revert file to most recent backup |
+| `viewLog()` | Display activity log with filtering options |
+| `archiveRepository()` | Compress entire repo to `.zip` |
+| `statusSummary()` | Show repo health: locked files, last check-in, deleted backups |
