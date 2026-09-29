@@ -101,8 +101,10 @@ checkOut() {
 			echo "File '$fileName' checked out for editing on $(date)"
 			echo "User '$USER' checked out file '$fileName' on $(date)" >> "$currentRepo/$logFile"
 			
-			# Open the checked-out file for editing
-			nano "$currentRepo/$fileName.checkedout"
+			# Open the checked-out file for editing.
+			# Left unquoted so $EDITOR may carry flags (e.g. "code --wait");
+			# it is the user's own environment variable, as git does.
+			${EDITOR:-nano} "$currentRepo/$fileName.checkedout"
 		fi
 		else
 			echo "File '$fileName' does not exist in the repository '$currentRepo'"
