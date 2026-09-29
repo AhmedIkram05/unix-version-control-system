@@ -83,7 +83,7 @@ VersionControl.sh
 **File Operations**
 
 - Add files to tracking
-- Check out files for editing — creates a `.checkedout` lock and opens in `nano`
+- Check out files for editing — creates a `.checkedout` lock and opens in `$EDITOR` (falls back to `nano`)
 - Check in changes — shows diff, creates timestamped backup, logs changes with optional comment
 - Restore previous version — rolls back to the most recent prior backup
 - Safe delete — creates a `.deleted_` backup before removal, fully recoverable
@@ -118,7 +118,7 @@ repository-name/
 ### Prerequisites
 
 - Any Unix/macOS system, or WSL on Windows
-- Bash, `diff`, `zip`, `nano` (or substitute your preferred editor in `checkOut()`)
+- Bash, `diff`, `zip`, and an editor — `nano` by default, or set `$EDITOR` (flags like `code --wait` work too)
 
 ### Run
 
@@ -127,6 +127,12 @@ git clone https://github.com/AhmedIkram05/unix-version-control-system.git
 cd unix-version-control-system
 chmod +x VersionControl.sh
 ./VersionControl.sh
+```
+
+### Test
+
+```bash
+./test_editor.sh
 ```
 
 ---
