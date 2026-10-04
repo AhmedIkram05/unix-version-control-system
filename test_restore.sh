@@ -15,9 +15,11 @@ trap 'rm -rf "$tmp"' EXIT
 # shellcheck disable=SC1090
 sed '$d' VersionControl.sh > "$tmp/funcs.sh"
 source "$tmp/funcs.sh"
+# $backupDir is set by the sourced file; fall back to its default so this
+# script also reads standalone under `set -u`.
+backupDir="${backupDir:-backups}"
 
 currentRepo="$tmp/repo"
-logFile="activity.log"
 mkdir -p "$currentRepo/$backupDir"
 
 fail=0
